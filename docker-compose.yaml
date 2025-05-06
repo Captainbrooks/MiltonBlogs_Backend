@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: secret
+    volumes:
+      - mongo-data:/data/db
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: backend-container
+    container_name: miltonblogs-backend
+    ports:
+      - "7000:7000"
+    volumes:
+      - .:/app # Take the current folder on the host (.) and mount it inside the container at /app so that the files are syncing if we make the changes locally
+
+      - /app/node_modules  # create an anonymoys volumes for /app/node_modules inside the container,
+
+      # when we run Docker and mount the project folder . to app inside the container
+      # if the local folder doesn't have the node_modules or if it's empty, we don't want to overwrite the node_modules insie the container
+      # cause that could break the application, because the container needs its own_modules to run so we create separate volume for /app/node_modules inside the container
+      # so it's not affected by what we have inside our computer
+
+      
+
+
+    env_file:
+      - .env
+    depends_on:
+      - mongodb
+    stdin_open: true
+    tty: true
+
+volumes:
+  mongo-data:
